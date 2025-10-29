@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Temperature Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+        }
+        h1 {
+            margin-bottom: 40px;
+            color: #4CAF50;
+            font-weight: 300;
+            font-size: 2.5em;
+        }
+        .input-group {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 18px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        .input-wrapper i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 18px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #result {
+            margin-top: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #result.show {
+            opacity: 1;
+        }
+        .result-item {
+            background: #f9f9f9;
+            padding: 30px;
+            margin: 10px 0;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .result-item i {
+            color: #4CAF50;
+            font-size: 32px;
+            margin-right: 20px;
+        }
+        .error {
+            color: #f44336;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                margin: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-thermometer-half"></i> Temperature Converter</h1>
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="number" id="tempInput" placeholder="Enter temperature in Celsius (e.g., 25)" step="any">
+                <i class="fas fa-temperature-high"></i>
+            </div>
+            <select id="toUnit">
+                <option value="C"> Celsius (°C)</option>
+                <option value="F"> Fahrenheit (°F)</option>
+                <option value="K"> Kelvin (K)</option>
+            </select>
+        </div>
+        <button id="convertBtn"><i class="fas fa-exchange-alt"></i> Convert</button>
+        <div id="result"></div>
+        <div class="footer">
+            <p>Accurate conversions for scientific and everyday use.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('convertBtn').addEventListener('click', function() {
+            const tempInput = document.getElementById('tempInput').value;
+            const toUnit = document.getElementById('toUnit').value;
+            const resultDiv = document.getElementById('result');
+
+            // Clear previous results
+            resultDiv.classList.remove('show');
+            resultDiv.innerHTML = '';
+
+            // Validate input
+            if (isNaN(tempInput) || tempInput === '') {
+                resultDiv.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i> Please enter a valid number.</div>';
+                resultDiv.classList.add('show');
+                return;
+            }
+
+            const temp = parseFloat(tempInput); // Input is always in Celsius
+            let convertedTemp, unitName, symbol, icon;
+
+            // Convert from Celsius to selected unit
+            if (toUnit === 'C') {
+                convertedTemp = temp;
+                unitName = 'Celsius';
+                symbol = '°C';
+                icon = 'fas fa-thermometer-half';
+            } else if (toUnit === 'F') {
+                convertedTemp = (temp * 9 / 5) + 32;
+                unitName = 'Fahrenheit';
+                symbol = '°F';
+                icon = 'fas fa-sun';
+            } else if (toUnit === 'K') {
+                convertedTemp = temp + 273.15;
+                unitName = 'Kelvin';
+                symbol = 'K';
+                icon = 'fas fa-snowflake';
+            }
+
+            // Display only the selected result
+            resultDiv.innerHTML = `
+                <div class="result-item">
+                    <i class="${icon}"></i>
+                    <span>${unitName}: ${convertedTemp.toFixed(2)} ${symbol}</span>
+                </div>
+            `;
+            resultDiv.classList.add('show');
+        });
+    </script>
+</body>
+</html>
